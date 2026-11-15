@@ -16,7 +16,16 @@ set -uo pipefail
 PY=/opt/venv/bin/python3
 OPTIONS=/data/options.json
 TRAVAIL=/share/collecte
-PAGES=/config/www/crue
+# Le dossier de configuration de Home Assistant est monte sous /homeassistant
+# quand l'add-on declare « homeassistant_config » (cas present). Sous l'ancien
+# nom « config », il apparaissait sous /config — qui designe desormais le
+# dossier de reglages propre a l'add-on. On essaie donc les deux, dans cet
+# ordre, pour ne pas ecrire dans un dossier que Home Assistant ne sert pas.
+if [ -d /homeassistant ]; then
+  PAGES=/homeassistant/www/crue
+else
+  PAGES=/config/www/crue
+fi
 
 lire() {
   "$PY" - "$1" "$2" <<'PYEOF'

@@ -1,5 +1,5 @@
 name: Collecte Sèvre Nantaise
-version: "1.0.0"
+version: "1.0.1"
 slug: collecte_sevre
 description: >-
   Archive la lame d'eau radar toutes les 5 minutes, les hauteurs, débits et
