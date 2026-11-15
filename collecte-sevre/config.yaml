@@ -1,0 +1,31 @@
+name: Collecte Sèvre Nantaise
+version: "1.0.0"
+slug: collecte_sevre
+description: >-
+  Archive la lame d'eau radar toutes les 5 minutes, les hauteurs, débits et
+  nappes toutes les 6 heures, et régénère la prévision de crue de Rochereau.
+url: https://github.com/Petonet85/Collecte
+arch:
+  - aarch64
+startup: application
+boot: auto
+init: false
+map:
+  - share:rw
+  - homeassistant_config:rw
+options:
+  cle_meteofrance: ""
+  intervalle_radar: 300
+  intervalle_collecte: 21600
+  intervalle_prevision: 21600
+  horizon_h: 72
+  publier_page: true
+  pousser_sur_github: false
+schema:
+  cle_meteofrance: password?
+  intervalle_radar: int(60,3600)
+  intervalle_collecte: int(600,86400)
+  intervalle_prevision: int(600,86400)
+  horizon_h: int(6,120)
+  publier_page: bool
+  pousser_sur_github: bool

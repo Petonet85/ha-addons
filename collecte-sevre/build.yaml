@@ -1,0 +1,8 @@
+# Base Debian, et c'est le choix qui compte ici.
+#
+# numpy, pandas et h5py existent en roues precompilees pour aarch64 sur une
+# base glibc : l'installation ne compile rien. Sur une base Alpine (musl), pip
+# ne trouve aucune roue et compilerait h5py et HDF5 depuis les sources — des
+# heures sur une Pi 4, et un echec de memoire tres probable a 2 Go.
+build_from:
+  aarch64: ghcr.io/home-assistant/aarch64-base-debian:bookworm
