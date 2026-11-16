@@ -15,6 +15,9 @@ RUN apt-get update \
  && /opt/venv/bin/python3 -c "import numpy, pandas, h5py, requests; print('roues en place')"
 
 COPY run.sh /run.sh
+# Analyse de fiabilite : elle vit dans l'add-on et non dans le depot
+# « Collecte », qui est clone en lecture seule et ne doit pas diverger.
+COPY fiabilite.py /opt/fiabilite.py
 RUN chmod a+x /run.sh
 
 CMD [ "/run.sh" ]

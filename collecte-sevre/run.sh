@@ -93,7 +93,7 @@ tache() {
 publier() {
   [ "$PUBLIER" = "true" ] || return 0
   mkdir -p "$PAGES"
-  for f in index.html carte.html tableau.json prevision.json historique.json; do
+  for f in index.html carte.html tableau.json prevision.json historique.json fiabilite.json; do
     [ -f "docs/$f" ] && cp -f "docs/$f" "$PAGES/$f"
   done
   journal "page recopiee dans $PAGES (visible sur /local/crue/index.html)"
@@ -118,6 +118,15 @@ while true; do
 
   if [ "$maintenant" -ge "$prochaine_prevision" ]; then
     tache prevision prevoir.py --horizon "$HORIZON"
+    # Confrontation des previsions passees aux observations. Apres la
+    # prevision : celle qui vient d'etre emise est alors deja archivee, et
+    # les echeances des precedentes sont desormais observables.
+    if "$PY" /opt/fiabilite.py "$TRAVAIL" "$TRAVAIL/docs/fiabilite.json" \
+         >/tmp/fiabilite.log 2>&1; then
+      journal "fiabilite : $(tail -1 /tmp/fiabilite.log | sed 's/^ *//')"
+    else
+      journal "fiabilite : ECHEC ($(tail -2 /tmp/fiabilite.log | tr '\n' ' '))"
+    fi
     publier
     prochaine_prevision=$(( maintenant + INT_PREVISION ))
   fi
