@@ -78,6 +78,17 @@ def mediane(valeurs):
     return v[n // 2] if n % 2 else (v[n // 2 - 1] + v[n // 2]) / 2
 
 
+def centile(valeurs, part):
+    """Centile par rang le plus proche. Pas d'interpolation : avec quelques
+    dizaines de valeurs, interpoler donnerait une fausse impression de
+    finesse."""
+    v = sorted(valeurs)
+    if not v:
+        return None
+    i = int(round(part * (len(v) - 1)))
+    return v[max(0, min(len(v) - 1, i))]
+
+
 def moyenne(valeurs):
     return sum(valeurs) / len(valeurs) if valeurs else None
 
@@ -204,6 +215,12 @@ def score(lot):
         "biais_cm": arrondi(moyenne(err)),
         "erreur_mediane_cm": arrondi(mediane([abs(e) for e in err])),
         "rmse_cm": arrondi(quadratique(err)),
+        # L'INTERVALLE REELLEMENT CONSTATE, qui est le seul chiffre
+        # directement utilisable en lisant une prevision : huit fois sur dix,
+        # l'ecart entre annonce et realite est tombe entre ces deux bornes.
+        # Il se lit sans rien connaitre des statistiques.
+        "p10_cm": arrondi(centile(err, 0.10)),
+        "p90_cm": arrondi(centile(err, 0.90)),
         # Le faisceau annonce « 8 chances sur 10 » : il doit contenir
         # l'observation 80 fois sur 100. Moins, il ment par optimisme ; plus,
         # il est si large qu'il ne dit plus rien.
