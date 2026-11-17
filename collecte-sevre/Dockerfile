@@ -21,6 +21,8 @@ COPY fiabilite.py /opt/fiabilite.py
 # Hydrogrammes des crues marquantes : extraits une fois, puis relus
 # depuis le cache disque du module HydroPortail du projet.
 COPY crues.py /opt/crues.py
+# Prevision officielle : vide hors episode, et c'est normal.
+COPY vigicrues.py /opt/vigicrues.py
 RUN chmod a+x /run.sh
 
 CMD [ "/run.sh" ]

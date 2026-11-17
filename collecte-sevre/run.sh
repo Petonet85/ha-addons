@@ -94,7 +94,7 @@ publier() {
   [ "$PUBLIER" = "true" ] || return 0
   mkdir -p "$PAGES"
   for f in index.html carte.html tableau.json prevision.json historique.json \
-           fiabilite.json crues.json; do
+           fiabilite.json crues.json vigicrues.json; do
     [ -f "docs/$f" ] && cp -f "docs/$f" "$PAGES/$f"
   done
   journal "page recopiee dans $PAGES (visible sur /local/crue/index.html)"
@@ -137,6 +137,14 @@ while true; do
       journal "crues : $(tail -1 /tmp/crues.log | sed 's/^ *//')"
     else
       journal "crues : ECHEC ($(tail -2 /tmp/crues.log | tr '\n' ' '))"
+    fi
+    # Prevision officielle Vigicrues. Elle n'existe que pendant un episode
+    # de crue : zero point est l'etat normal, pas une panne.
+    if "$PY" /opt/vigicrues.py "$TRAVAIL" "$TRAVAIL/docs/vigicrues.json" \
+         >/tmp/vigicrues.log 2>&1; then
+      journal "vigicrues : $(tail -1 /tmp/vigicrues.log | sed 's/^ *//')"
+    else
+      journal "vigicrues : ECHEC ($(tail -2 /tmp/vigicrues.log | tr '\n' ' '))"
     fi
     publier
     prochaine_prevision=$(( maintenant + INT_PREVISION ))
