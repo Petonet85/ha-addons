@@ -93,7 +93,8 @@ tache() {
 publier() {
   [ "$PUBLIER" = "true" ] || return 0
   mkdir -p "$PAGES"
-  for f in index.html carte.html tableau.json prevision.json historique.json fiabilite.json; do
+  for f in index.html carte.html tableau.json prevision.json historique.json \
+           fiabilite.json crues.json; do
     [ -f "docs/$f" ] && cp -f "docs/$f" "$PAGES/$f"
   done
   journal "page recopiee dans $PAGES (visible sur /local/crue/index.html)"
@@ -126,6 +127,16 @@ while true; do
       journal "fiabilite : $(tail -1 /tmp/fiabilite.log | sed 's/^ *//')"
     else
       journal "fiabilite : ECHEC ($(tail -2 /tmp/fiabilite.log | tr '\n' ' '))"
+    fi
+    # Les crues passees ne changent pas d'un cycle a l'autre, mais
+    # l'historique long si : une nouvelle crue pourrait entrer au palmares.
+    # Le module met ses reponses en cache, donc ce passage ne coute du reseau
+    # que la premiere fois, ou quand un nouvel episode apparait.
+    if "$PY" /opt/crues.py "$TRAVAIL" "$TRAVAIL/docs/crues.json" \
+         >/tmp/crues.log 2>&1; then
+      journal "crues : $(tail -1 /tmp/crues.log | sed 's/^ *//')"
+    else
+      journal "crues : ECHEC ($(tail -2 /tmp/crues.log | tr '\n' ' '))"
     fi
     publier
     prochaine_prevision=$(( maintenant + INT_PREVISION ))

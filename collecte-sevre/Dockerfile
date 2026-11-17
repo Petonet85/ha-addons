@@ -18,6 +18,9 @@ COPY run.sh /run.sh
 # Analyse de fiabilite : elle vit dans l'add-on et non dans le depot
 # « Collecte », qui est clone en lecture seule et ne doit pas diverger.
 COPY fiabilite.py /opt/fiabilite.py
+# Hydrogrammes des crues marquantes : extraits une fois, puis relus
+# depuis le cache disque du module HydroPortail du projet.
+COPY crues.py /opt/crues.py
 RUN chmod a+x /run.sh
 
 CMD [ "/run.sh" ]
