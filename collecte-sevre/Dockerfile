@@ -23,6 +23,11 @@ COPY fiabilite.py /opt/fiabilite.py
 COPY crues.py /opt/crues.py
 # Prevision officielle : vide hors episode, et c'est normal.
 COPY vigicrues.py /opt/vigicrues.py
+# Bascule automatique Hub'Eau -> HydroPortail, posee dans le depot clone
+# a chaque demarrage. Voir repli.py pour le detail.
+COPY repli.py /opt/repli.py
+COPY installer-repli.py /opt/installer-repli.py
+COPY amorcer-copies.py /opt/amorcer-copies.py
 RUN chmod a+x /run.sh
 
 CMD [ "/run.sh" ]

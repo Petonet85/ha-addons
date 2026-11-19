@@ -80,6 +80,20 @@ fi
 cd "$TRAVAIL" || exit 1
 journal "depot pret : $(git log --oneline -1 2>/dev/null || echo 'inconnu')"
 
+# --- Bascule automatique vers HydroPortail -------------------------------
+# Posee a chaque demarrage, et idempotente : si le depot est reclone, elle
+# revient. Hub'Eau reste la source normale ; on ne bascule qu'en cas
+# d'echec, et le retour se fait tout seul.
+"$PY" /opt/installer-repli.py "$TRAVAIL" /opt/repli.py 2>&1 | while read -r l; do
+  journal "repli : $l"
+done
+
+# Copie durable de l'historique long, reconstituee depuis le cache HTTP si
+# elle manque. Sans elle, une panne de Hub'Eau arrete la prevision.
+"$PY" /opt/amorcer-copies.py "$TRAVAIL" 2>&1 | while read -r l; do
+  journal "copies : $l"
+done
+
 tache() {
   local nom="$1"; shift
   local debut; debut=$(date +%s)
@@ -94,7 +108,7 @@ publier() {
   [ "$PUBLIER" = "true" ] || return 0
   mkdir -p "$PAGES"
   for f in index.html carte.html tableau.json prevision.json historique.json \
-           fiabilite.json crues.json vigicrues.json; do
+           fiabilite.json crues.json vigicrues.json sources.json; do
     [ -f "docs/$f" ] && cp -f "docs/$f" "$PAGES/$f"
   done
   journal "page recopiee dans $PAGES (visible sur /local/crue/index.html)"
