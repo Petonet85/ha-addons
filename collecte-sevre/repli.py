@@ -85,18 +85,33 @@ def installer(g, depot=None):
         if depot not in sys.path:
             sys.path.insert(0, depot)
         import hydroportail as hp
-        # HydroPortail veut un code de STATION (dix caracteres). Un code de
-        # site n'a pas d'equivalent direct : on ne tente pas de deviner.
-        if len(code) != 10:
-            raise ValueError("code de site, pas de station : %s" % code)
+        # HydroPortail veut un code de STATION (dix caracteres), alors que la
+        # chaine interroge parfois un code de SITE (huit). Dans la
+        # nomenclature francaise, la station porte le code du site suivi de
+        # deux chiffres de rang — « 10 » pour la premiere, qui est la seule
+        # de ces trois sites. La correspondance est verifiee dans le projet
+        # lui-meme : tarage.py associe M7022410 a M702241010 et M7044010 a
+        # M704401010.
+        #
+        # On ne devine pas en silence : si la station deduite ne rend rien,
+        # on echoue plutot que de rendre une serie vide qui passerait pour
+        # une riviere a sec.
+        candidats = [code] if len(code) == 10 else [code + "10", code + "01"]
         fin = datetime.date.today() + datetime.timedelta(days=1)
         debut = fin - datetime.timedelta(days=max(jours, 1) + 1)
         ancien = hp.CACHE
         hp.CACHE = CACHE_JETABLE
         try:
             shutil.rmtree(CACHE_JETABLE, ignore_errors=True)
-            return hp.serie(code, grandeur, debut.strftime("%d/%m/%Y"),
-                            fin.strftime("%d/%m/%Y"))
+            for station in candidats:
+                serie = hp.serie(station, grandeur, debut.strftime("%d/%m/%Y"),
+                                 fin.strftime("%d/%m/%Y"))
+                if len(serie):
+                    if station != code:
+                        print("    (site %s lu comme station %s)" % (code, station))
+                    return serie
+            raise ValueError("aucune mesure pour %s [%s] sur HydroPortail"
+                             % ("/".join(candidats), grandeur))
         finally:
             hp.CACHE = ancien
 
